@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cloudflare-ddns
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cloudflare-ddns
+  template:
+    metadata:
+      labels:
+        app: cloudflare-ddns
+    spec:
+      containers:
+        - name: cloudflare-ddns
+          image: oznu/cloudflare-ddns:latest
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: API_KEY
+              value: XXXXX
+            - name: ZONE
+              value: XXXXX
+            - name: SUBDOMAIN
+              value: XXXXX
+            - name: PROXIED
+              value: "false"
+            - name: PUID
+              value: "1000"
+            - name: GUID
+              value: "1000"

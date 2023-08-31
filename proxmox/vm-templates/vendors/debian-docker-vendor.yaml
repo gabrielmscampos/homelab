@@ -1,0 +1,7 @@
+#cloud-config
+runcmd:
+  - apt update
+  - apt install -y qemu-guest-agent
+  - systemctl start qemu-guest-agent
+  - curl -fsSL https://get.docker.com | sh
+  - usermod -aG docker admin

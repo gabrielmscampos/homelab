@@ -1,0 +1,11 @@
+version: '3'
+services:
+  cloudflare-tunnels:
+    image: cloudflare/cloudflared:latest
+    container_name: cloudflare-tunnels
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run
+    environment:
+      - PUID=1000
+      - GUID=1000
+      - TUNNEL_TOKEN=XXXXX

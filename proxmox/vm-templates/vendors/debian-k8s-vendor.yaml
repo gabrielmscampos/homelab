@@ -1,0 +1,17 @@
+#cloud-config
+runcmd:
+  - apt update
+  - apt install -y qemu-guest-agent
+  - systemctl start qemu-guest-agent
+  - apt install -y containerd gnupg
+  - containerd config default | tee /etc/containerd/config.toml
+  - sed -i 's/SystemdCgroup = false/SystemdCgroup = true/g' /etc/containerd/config.toml
+  - systemctl restart containerd
+  - sed -i 's/#net.ipv4.ip_forward=1/net.ipv4.ip_forward=1/g' /etc/sysctl.conf
+  - sysctl -p
+  - echo 'br_netfilter' | tee /etc/modules-load.d/k8s.conf
+  - modprobe br_netfilter
+  - curl -fsSL https://dl.k8s.io/apt/doc/apt-key.gpg | gpg --dearmor -o /etc/apt/keyrings/kubernetes-archive-keyring.gpg
+  - echo "deb [signed-by=/etc/apt/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | tee /etc/apt/sources.list.d/kubernetes.list
+  - apt update
+  - apt install kubelet kubeadm kubectl -y
