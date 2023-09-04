@@ -1,0 +1,89 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: heimdall-pv-nfs
+spec:
+  storageClassName: local-storage
+  claimRef:
+    name: heimdall-pvc
+    namespace: default
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  mountOptions:
+    - hard
+    - nfsvers=4.1
+  nfs:
+    path: /mnt/dpool/Kubernetes/Staging/heimdall
+    server: 192.168.31.29
+    readOnly: false
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: heimdall-pvc
+spec:
+  storageClassName: local-storage
+  accessModes:
+    - ReadWriteOnce
+  volumeMode: Filesystem
+  resources:
+    requests:
+      storage: 1Gi
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: heimdall
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: heimdall
+  template:
+    metadata:
+      labels:
+        app: heimdall
+    spec:
+      containers:
+        - name: heimdall
+          image: lscr.io/linuxserver/heimdall:latest
+          imagePullPolicy: Always
+          env:
+            - name: TZ
+              value: "America/Sao_Paulo"
+            - name: PUID
+              value: "1004"
+            - name: GUID
+              value: "1004"
+          ports:
+            - name: http-port
+              containerPort: 80
+            - name: https-port
+              containerPort: 443
+          volumeMounts:
+            - name: heimdall-data
+              mountPath: /config
+              subPath: config
+      volumes:
+        - name: heimdall-data
+          persistentVolumeClaim:
+              claimName: heimdall-pvc
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: heimdall-svc
+spec:
+  selector:
+    app: heimdall
+  type: NodePort
+  ports:
+    - port: 443
+      targetPort: 443
+      nodePort: 30443
