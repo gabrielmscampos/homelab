@@ -16,7 +16,7 @@ spec:
     - hard
     - nfsvers=4.1
   nfs:
-    path: /mnt/dpool/Kubernetes/Staging/heimdall
+    path: /mnt/dpool/Services/heimdall
     server: 192.168.31.29
     readOnly: false
 
@@ -57,9 +57,9 @@ spec:
             - name: TZ
               value: "America/Sao_Paulo"
             - name: PUID
-              value: "1004"
+              value: "1001"
             - name: GUID
-              value: "1004"
+              value: "1001"
           ports:
             - name: http-port
               containerPort: 80
