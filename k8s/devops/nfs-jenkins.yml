@@ -59,7 +59,7 @@ spec:
     name: jenkins-pvc
     namespace: jenkins
   capacity:
-    storage: 1T
+    storage: 100Gi
   accessModes:
     - ReadWriteOnce
   persistentVolumeReclaimPolicy: Retain
@@ -67,7 +67,7 @@ spec:
     - hard
     - nfsvers=4.1
   nfs:
-    path: /mnt/dpool/Kubernetes/Staging/jenkins
+    path: /mnt/dpool/Services/jenkins
     server: 192.168.31.29
     readOnly: false
 
@@ -84,7 +84,7 @@ spec:
   volumeMode: Filesystem
   resources:
     requests:
-      storage: 1T
+      storage: 100Gi
 
 ---
 apiVersion: apps/v1
@@ -104,8 +104,8 @@ spec:
     spec:
       serviceAccountName: jenkins-admin
       securityContext:
-        fsGroup: 1004
-        runAsUser: 1004
+        fsGroup: 1001
+        runAsUser: 1001
       containers:
         - name: jenkins
           image: jenkins/jenkins:lts
