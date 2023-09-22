@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: stirling-pdf
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: stirling-pdf
+  template:
+    metadata:
+      labels:
+        app: stirling-pdf
+    spec:
+      containers:
+        - name: stirling-pdf
+          image: frooodle/s-pdf:latest
+          imagePullPolicy: Always
+          env:
+            - name: DOCKER_ENABLE_SECURITY
+              value: "false"
+          ports:
+            - name: http-port
+              containerPort: 8080
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: stirling-pdf-svc
+spec:
+  selector:
+    app: stirling-pdf
+  type: NodePort
+  ports:
+    - port: 8080
+      targetPort: 8080
+      nodePort: 30444

@@ -1,0 +1,83 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: stirling-pdf-pv-nfs
+spec:
+  storageClassName: local-storage
+  claimRef:
+    name: stirling-pdf-pvc
+    namespace: default
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  mountOptions:
+    - hard
+    - nfsvers=4.1
+  nfs:
+    path: /mnt/dpool/Services/stirling-pdf
+    server: 192.168.31.29
+    readOnly: false
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: stirling-pdf-pvc
+spec:
+  storageClassName: local-storage
+  accessModes:
+    - ReadWriteOnce
+  volumeMode: Filesystem
+  resources:
+    requests:
+      storage: 1Gi
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: stirling-pdf
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: stirling-pdf
+  template:
+    metadata:
+      labels:
+        app: stirling-pdf
+    spec:
+      containers:
+        - name: stirling-pdf
+          image: frooodle/s-pdf:latest
+          imagePullPolicy: Always
+          env:
+            - name: DOCKER_ENABLE_SECURITY
+              value: "false"
+          ports:
+            - name: http-port
+              containerPort: 8080
+          volumeMounts:
+            - name: stirling-pdf-data
+              mountPath: /config
+              subPath: config
+      volumes:
+        - name: stirling-pdf-data
+          persistentVolumeClaim:
+              claimName: stirling-pdf-pvc
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: stirling-pdf-svc
+spec:
+  selector:
+    app: stirling-pdf
+  type: NodePort
+  ports:
+    - port: 8080
+      targetPort: 8080
+      nodePort: 30444
