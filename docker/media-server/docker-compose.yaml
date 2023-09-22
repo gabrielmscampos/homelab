@@ -1,0 +1,118 @@
+version: '3.8'
+services:
+  transmission:
+    image: lscr.io/linuxserver/transmission:latest
+    container_name: transmission
+    restart: unless-stopped
+    ports:
+      - 9091:9091
+      - 51413:51413
+      - 51413:51413/udp
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Sao_Paulo
+    volumes:
+      - /home/admin/configs/transmission:/config
+      - /mnt/media/torrent/downloads:/downloads
+      - /mnt/media/torrent/watch:/watch
+
+  flaresolverr:
+    image: ghcr.io/flaresolverr/flaresolverr:latest
+    container_name: flaresolverr
+    environment:
+      - LOG_LEVEL=info
+      - LOG_HTML=false
+      - CAPTCHA_SOLVER=none
+      - TZ=America/Sao_Paulo
+    ports:
+      - 8191:8191
+    restart: unless-stopped
+
+  prowlarr:
+    image: lscr.io/linuxserver/prowlarr:develop
+    container_name: prowlarr
+    restart: unless-stopped
+    ports:
+      - 9696:9696
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Sao_Paulo
+    volumes:
+      - /home/admin/configs/prowlarr:/config
+
+  sonarr:
+    image: lscr.io/linuxserver/sonarr:latest
+    container_name: sonarr
+    restart: unless-stopped
+    ports:
+      - 8989:8989
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Sao_Paulo
+    volumes:
+      - /home/admin/configs/sonarr:/config
+      - /mnt/media/tvshows:/tv
+      - /mnt/media/torrent/downloads:/downloads
+
+  radarr:
+    image: lscr.io/linuxserver/radarr:latest
+    container_name: radarr
+    restart: unless-stopped
+    ports:
+      - 7878:7878
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Sao_Paulo
+    volumes:
+      - /home/admin/configs/radarr:/config
+      - /mnt/media/movies:/movies
+      - /mnt/media/torrent/downloads:/downloads
+
+  bazarr:
+    image: lscr.io/linuxserver/bazarr:latest
+    container_name: bazarr
+    restart: unless-stopped
+    ports:
+      - 6767:6767
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Sao_Paulo
+    volumes:
+      - /home/admin/configs/bazarr:/config
+      - /mnt/media/tvshows:/tv
+      - /mnt/media/movies:/movies
+
+  jellyseerr:
+    image: fallenbagel/jellyseerr:latest
+    container_name: jellyseerr
+    restart: unless-stopped
+    environment:
+      - LOG_LEVEL=debug
+      - TZ=America/Sao_Paulo
+    ports:
+      - 5056:5055
+    volumes:
+      - /home/admin/configs/jellyseerr:/app/config
+
+  jellyfin:
+    image: lscr.io/linuxserver/jellyfin:latest
+    container_name: jellyfin
+    restart: unless-stopped
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Sao_Paulo
+    volumes:
+      - /home/admin/configs/jellyfin:/config
+      - /mnt/media/tvshows:/data/tvshows
+      - /mnt/media/movies:/data/movies
+    ports:
+      - 8096:8096
+      - 8920:8920 #optional
+      - 7359:7359/udp #optional
+      - 1901:1900/udp #optional
